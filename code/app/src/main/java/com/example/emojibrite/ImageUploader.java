@@ -1,6 +1,12 @@
 package com.example.emojibrite;
 
+import static androidx.test.InstrumentationRegistry.getContext;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.net.Uri;
+import android.widget.ProgressBar;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -15,57 +21,58 @@ public class ImageUploader {
 
     private final FirebaseStorage storage;
     private final String storagePath;
+    private AlertDialog loadingDialog;
 
-    /**
-     * Constructor to get the Image class started
-     * @param storagePath could be anything. I went with "images" you can do anything
-     */
-    public ImageUploader(String storagePath){
+    public ImageUploader(Context context, String storagePath) {
         this.storage = FirebaseStorage.getInstance();
         this.storagePath = storagePath;
+        createLoadingDialog(context);
     }
 
-    /**
-     * Interface for success and no success
-     */
-    public interface UploadCallback{
-
-        /**
-         * Method to get the download URI
-         * @param downloadUri the download URI
-         */
-        void onUploadSuccess(Uri downloadUri); //interface for when the stuff works
-
-        /**
-         * Method to handle the exception
-         * @param exception the exception
-         */
-        void onUploadFailure(Exception exception); // error handler
+    private void createLoadingDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(R.layout.loading); // Ensure you have a layout `loading.xml` with a ProgressBar
+        builder.setCancelable(false);
+        loadingDialog = builder.create();
     }
 
-    /**
-     * Uploading the image
-     * @param imageUri the image which is passed to upload into firebase
-     * @param callback the callback for the upload
-     */
-    public void uploadImage(Uri imageUri, UploadCallback callback){
-        StorageReference storageRef = storage.getReference(); //refers the storage
-        StorageReference imageRef = storageRef.child(storagePath+"/"+ UUID.randomUUID().toString()+".jpg"); //uses the storage reference to store the images
+    private void showLoadingDialog() {
+        if (loadingDialog != null && !loadingDialog.isShowing()) {
+            loadingDialog.show();
+        }
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+    }
+
+    public interface UploadCallback {
+        void onUploadSuccess(Uri downloadUri);
+        void onUploadFailure(Exception exception);
+    }
+
+    public void uploadImage(Uri imageUri, UploadCallback callback) {
+        showLoadingDialog();
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageRef = storageRef.child(storagePath + "/" + UUID.randomUUID().toString() + ".jpg");
 
         imageRef.putFile(imageUri).continueWithTask(task -> {
-            if (!task.isSuccessful()){
+            if (!task.isSuccessful()) {
                 throw task.getException();
             }
-            return imageRef.getDownloadUrl(); //gets the downloaded url which is uploaded
+            return imageRef.getDownloadUrl();
         }).addOnCompleteListener(task -> {
-            if (task.isSuccessful()){
-                Uri downloadedUri = task.getResult(); // gets the result of the new uri
-                callback.onUploadSuccess(downloadedUri);  //gives the result as a variable called downloadedUri
-            }
-            else {
+            hideLoadingDialog();
+            if (task.isSuccessful()) {
+                Uri downloadedUri = task.getResult();
+                callback.onUploadSuccess(downloadedUri);
+            } else {
                 callback.onUploadFailure(task.getException());
             }
         });
-
     }
+
 }
+

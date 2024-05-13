@@ -50,7 +50,7 @@ public class UploadImageScreenFragment extends Fragment {
     private Uri imageUri;
 
     Uri selectedImageUri;
-    ImageUploader imageUploader = new ImageUploader("images");
+    ImageUploader imageUploader;
 
     private Bitmap  imageBitMap;
     private Database database = new Database();
@@ -101,7 +101,8 @@ public class UploadImageScreenFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        // Initialize the ActivityResultLauncher in onAttach()
+        imageUploader = new ImageUploader(context, "images");
+
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
             if (uri != null) {
                 imageUri = uri;
@@ -114,27 +115,20 @@ public class UploadImageScreenFragment extends Fragment {
                         user.setUploadedImageUri(downloadUri.toString());
                         addingMetaData();
                         nextButtonText.setClickable(true);
-                        //database.storeImageUri(user.getProfileUid(), uri.toString(), "uploadedImage");
-
                     }
 
                     @Override
                     public void onUploadFailure(Exception exception) {
                         nextButtonText.setClickable(true);
-
                     }
                 });
-
-                //database.storeImageUri(user.getProfileUid(), uri.toString(), "uploadedImage");
-
-                // Retrieve the image from the URI
-
             } else {
                 Log.d("PhotoPicker", "No media selected");
                 nextButtonText.setClickable(true);
             }
         });
     }
+
 
     /**
      * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}

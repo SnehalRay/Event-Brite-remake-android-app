@@ -72,8 +72,8 @@ public class AddEventFragment extends DialogFragment{
 
     private String eventId, checkInID;
 
-    ImageUploader imageUploader = new ImageUploader("images");
-    ImageUploader imageUploaderQR = new ImageUploader("QRCode");
+    ImageUploader imageUploader;
+    ImageUploader imageUploaderQR ;
 
     private boolean isCheckInQRGenerated = false;
     private boolean isEventQRGenerated = false;
@@ -103,12 +103,14 @@ public class AddEventFragment extends DialogFragment{
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        imageUploader = new ImageUploader(context, "images");
+        imageUploaderQR = new ImageUploader(context, "QRCode");
+
         if (context instanceof AddEventListener) {
             listener = (AddEventListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement AddEventListener");
         }
-
     }
 
     // ActivityResultLauncher for handling image selection result

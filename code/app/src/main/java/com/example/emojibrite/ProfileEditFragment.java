@@ -56,7 +56,7 @@ public class ProfileEditFragment extends DialogFragment {
      * Interface for sending the updated user object back to the ProfileActivity.
      */
     public OnInputSelected mOnInputSelected;
-    ImageUploader imageUploader = new ImageUploader("images");
+    ImageUploader imageUploader;
 
 
 
@@ -276,6 +276,7 @@ public class ProfileEditFragment extends DialogFragment {
     public void onAttach(@NonNull Context context) {
 
         super.onAttach(context);
+        imageUploader = new ImageUploader(context, "images");
         try {
             mOnInputSelected = (OnInputSelected) getActivity();
         } catch (ClassCastException e) {
@@ -316,6 +317,8 @@ public class ProfileEditFragment extends DialogFragment {
             }
         });
     }
+
+
 
     /**
      * Interface for sending the updated user object back to the ProfileActivity.
