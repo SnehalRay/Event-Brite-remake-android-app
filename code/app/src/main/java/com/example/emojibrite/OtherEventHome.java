@@ -43,6 +43,8 @@ public class OtherEventHome extends AppCompatActivity {
 
     ImageView notifButton;
 
+    ImageView logoButton;
+
     private static final String TAG = "ProfileActivityTAG";
 
     /**
@@ -177,6 +179,8 @@ public class OtherEventHome extends AppCompatActivity {
         eventList = findViewById(R.id.event_organizer_list);
         dataList1 = new ArrayList<>();
 
+        logoButton = findViewById(R.id.imageView);
+
         eventAdapter = new EventAdapter(this, dataList1, null);
         eventList.setAdapter(eventAdapter);
 
@@ -207,6 +211,14 @@ public class OtherEventHome extends AppCompatActivity {
             public void onClick(View v) {
                 showNotifications(user);
 
+            }
+        });
+
+        logoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(OtherEventHome.this, MainActivity.class);
+                startActivity(intent);
             }
         });
 

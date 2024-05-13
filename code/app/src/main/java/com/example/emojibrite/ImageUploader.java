@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.ProgressBar;
 
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,37 +44,42 @@ public class ImageUploader {
         }
     }
 
-    private void hideLoadingDialog() {
-        if (loadingDialog != null && loadingDialog.isShowing()) {
-            loadingDialog.dismiss();
-        }
-    }
 
     public interface UploadCallback {
         void onUploadSuccess(Uri downloadUri);
         void onUploadFailure(Exception exception);
     }
 
+    public void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            // Run on UI thread
+            new Handler(Looper.getMainLooper()).post(() -> loadingDialog.dismiss());
+        }
+    }
+
+
     public void uploadImage(Uri imageUri, UploadCallback callback) {
-        showLoadingDialog();
+        showLoadingDialog();  // Show dialog on UI thread
+
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child(storagePath + "/" + UUID.randomUUID().toString() + ".jpg");
 
         imageRef.putFile(imageUri).continueWithTask(task -> {
             if (!task.isSuccessful()) {
-                throw task.getException();
+                throw task.getException();  // Propagate error if task fails
             }
-            return imageRef.getDownloadUrl();
+            return imageRef.getDownloadUrl();  // Continue with getting the download URL
         }).addOnCompleteListener(task -> {
-            hideLoadingDialog();
             if (task.isSuccessful()) {
                 Uri downloadedUri = task.getResult();
                 callback.onUploadSuccess(downloadedUri);
             } else {
                 callback.onUploadFailure(task.getException());
             }
+            hideLoadingDialog();  // Dismiss dialog on UI thread
         });
     }
+
 
 }
 

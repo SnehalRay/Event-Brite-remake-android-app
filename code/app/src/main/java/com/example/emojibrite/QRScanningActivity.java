@@ -121,7 +121,7 @@ public class QRScanningActivity extends AppCompatActivity {
                 }
                 else if (activity.equals("event")) {
                     Toast.makeText(this, "User got deleted by admin", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(QRScanningActivity.this, OtherEventHome.class);
+                    Intent intent = new Intent(QRScanningActivity.this, EventHome.class);
                     intent.putExtra("userObject", user);
                     startActivity(intent);
                 }
@@ -240,7 +240,7 @@ public class QRScanningActivity extends AppCompatActivity {
         // if we did not find anything at all
         else if (!found){
             Toast.makeText(this,"The scanned QR is not associated with any events.", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(QRScanningActivity.this, OtherEventHome.class);
+            Intent intent = new Intent(QRScanningActivity.this, EventHome.class);
             intent.putExtra("userObject", user);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
